@@ -1,4 +1,4 @@
-import { Client } from "https://esm.sh/@dagger.io/dagger@0.8.7";
+import { Client, Secret } from "https://esm.sh/@dagger.io/dagger@0.8.7";
 
 type DeployOptions = {
   /**
@@ -20,9 +20,9 @@ type DeployOptions = {
    */
   project: string
   /**
-   * The deno deploy token
+   * The deno deploy token secret
    */
-  deployToken: string;
+  deployToken: Secret;
   /**
    * The entrypoint to use for the deploy
    * @default main.ts
@@ -33,16 +33,11 @@ type DeployOptions = {
 export async function denoDeploy({ client, dir = ".", prod = true, project, entrypoint = "main.ts", deployToken }: DeployOptions) {
   const directory = client.host().directory(dir)
 
-  const denoDeployToken = client.setSecret(
-    "denoDeployToken",
-    deployToken,
-  )
-
   await client
     .pipeline("deploy")
     .container()
     .from("denoland/deno")
-    .withSecretVariable("DENO_DEPLOY_TOKEN", denoDeployToken)
+    .withSecretVariable("DENO_DEPLOY_TOKEN", deployToken)
     .withDirectory("/src", directory)
     .withWorkdir("/src")
     .withExec(["deno", "install", "-Arf", "https://deno.land/x/deploy/deployctl.ts"], { skipEntrypoint: true })
