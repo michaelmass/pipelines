@@ -7,7 +7,7 @@ type GetInfinsicalStoreOptions = {
   /**
    * The workspace id to get the secret store for
    */
-  workspaceId: string
+  workspaceId?: string
   /**
    * Default secret path to use
    * @default /
@@ -19,9 +19,13 @@ type GetInfinsicalStoreOptions = {
   token?: string
 }
 
-export function getInfinsicalStore({ environment = 'prod', token = Deno.env.get('INFISICAL_TOKEN'), workspaceId, defaultSecretPath = '/' }: GetInfinsicalStoreOptions) {
+export function getInfinsicalStore({ environment = 'prod', token = Deno.env.get('INFISICAL_TOKEN'), workspaceId = Deno.env.get('INFISICAL_WORKSPACE_ID'), defaultSecretPath = '/' }: GetInfinsicalStoreOptions) {
   if (!token) {
-    throw new Error('No infisical token provided token provided')
+    throw new Error('No infisical token provided')
+  }
+
+  if (!workspaceId) {
+    throw new Error('No infisical workspace id provided')
   }
 
   return {
