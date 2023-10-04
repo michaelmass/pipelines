@@ -18,8 +18,10 @@ runs:
     - uses: actions/checkout@v4
     - uses: denoland/setup-deno@v1
     - name: Install Dagger
+      shell: bash
       run: curl -L https://dl.dagger.io/dagger/install.sh | sh
     - name: Run Pipeline
+      shell: bash
       env:
         INFISICAL_TOKEN: ${{ inputs.infisical-token }}
         INFISICAL_WORKSPACE_ID: ${{ inputs.infisical-workspace-id }}
