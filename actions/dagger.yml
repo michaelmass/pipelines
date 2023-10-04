@@ -1,4 +1,4 @@
-name: Dagger Deno
+name: Dagger Deno Pipeline
 description: Runs a Dagger pipeline written in Deno
 
 inputs:
