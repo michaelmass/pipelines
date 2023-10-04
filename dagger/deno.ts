@@ -89,3 +89,28 @@ export async function lint({ client, dir = "." }: LintOptions) {
     .withExec(["deno", "lint"], { skipEntrypoint: true })
     .sync();
 }
+
+type FmtOptions = {
+  /**
+   * The dagger client to use
+   */
+  client: Client;
+  /**
+   * The directory to use as the source for the deploy
+   * @default .
+   */
+  dir?: string;
+};
+
+export async function fmt({ client, dir = "." }: FmtOptions) {
+  const directory = client.host().directory(dir);
+
+  await client
+    .pipeline("fmt")
+    .container()
+    .from("denoland/deno")
+    .withDirectory("/src", directory)
+    .withWorkdir("/src")
+    .withExec(["deno", "fmt", "--check"], { skipEntrypoint: true })
+    .sync();
+}
