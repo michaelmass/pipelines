@@ -18,7 +18,7 @@ type DeployOptions = {
   /**
    * The deno deploy project name
    */
-  project: string
+  project: string;
   /**
    * The deno deploy token secret
    */
@@ -28,10 +28,19 @@ type DeployOptions = {
    * @default main.ts
    */
   entrypoint?: string;
-}
+};
 
-export async function deploy({ client, dir = ".", prod = true, project, entrypoint = "main.ts", deployToken }: DeployOptions) {
-  const directory = client.host().directory(dir)
+export async function deploy(
+  {
+    client,
+    dir = ".",
+    prod = true,
+    project,
+    entrypoint = "main.ts",
+    deployToken,
+  }: DeployOptions,
+) {
+  const directory = client.host().directory(dir);
 
   await client
     .pipeline("deploy")
@@ -40,25 +49,36 @@ export async function deploy({ client, dir = ".", prod = true, project, entrypoi
     .withSecretVariable("DENO_DEPLOY_TOKEN", deployToken)
     .withDirectory("/src", directory)
     .withWorkdir("/src")
-    .withExec(["deno", "install", "-Arf", "https://deno.land/x/deploy/deployctl.ts"], { skipEntrypoint: true })
-    .withExec(["deployctl", "deploy", `--project=${project}`, prod ? "--prod" : "", entrypoint], { skipEntrypoint: true })
+    .withExec([
+      "deno",
+      "install",
+      "-Arf",
+      "https://deno.land/x/deploy/deployctl.ts",
+    ], { skipEntrypoint: true })
+    .withExec([
+      "deployctl",
+      "deploy",
+      `--project=${project}`,
+      prod ? "--prod" : "",
+      entrypoint,
+    ], { skipEntrypoint: true })
     .sync();
 }
 
 type LintOptions = {
   /**
- * The dagger client to use
- */
+   * The dagger client to use
+   */
   client: Client;
   /**
    * The directory to use as the source for the deploy
    * @default .
    */
   dir?: string;
-}
+};
 
-export async function lint({ client, dir = '.' }: LintOptions) {
-  const directory = client.host().directory(dir)
+export async function lint({ client, dir = "." }: LintOptions) {
+  const directory = client.host().directory(dir);
 
   await client
     .pipeline("lint")
