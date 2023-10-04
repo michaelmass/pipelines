@@ -1,4 +1,10 @@
+import { Client } from "https://esm.sh/@dagger.io/dagger@0.8.7";
+
 type GetInfinsicalStoreOptions = {
+  /**
+ * The dagger client to use
+ */
+  client: Client;
   /**
    * The environment to get the secret store for
    * @default prod
@@ -19,7 +25,7 @@ type GetInfinsicalStoreOptions = {
   token?: string
 }
 
-export function getInfinsicalStore({ environment = 'prod', token = Deno.env.get('INFISICAL_TOKEN'), workspaceId = Deno.env.get('INFISICAL_WORKSPACE_ID'), defaultSecretPath = '/' }: GetInfinsicalStoreOptions = {}) {
+export function getInfinsicalStore({ client, environment = 'prod', token = Deno.env.get('INFISICAL_TOKEN'), workspaceId = Deno.env.get('INFISICAL_WORKSPACE_ID'), defaultSecretPath = '/' }: GetInfinsicalStoreOptions) {
   if (!token) {
     throw new Error('No infisical token provided')
   }
@@ -29,14 +35,24 @@ export function getInfinsicalStore({ environment = 'prod', token = Deno.env.get(
   }
 
   return {
-    get: (name: string, secretPath?: string) => getInfisicalSecret({
-      environment,
-      token,
-      name,
-      workspaceId,
-      secretPath: secretPath ?? defaultSecretPath,
-    })
+    get: async ({ name, secretName, secretPath }: GetOptions) => {
+      const value = await getInfisicalSecret({
+        environment,
+        token,
+        name,
+        workspaceId,
+        secretPath: secretPath ?? defaultSecretPath,
+      })
+
+      return client.setSecret(secretName, value)
+    }
   }
+}
+
+type GetOptions = {
+  name: string,
+  secretName: string,
+  secretPath?: string
 }
 
 type GetInfisicalSecretOptions = {
