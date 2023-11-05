@@ -1,4 +1,8 @@
-import { Client, Secret } from "https://esm.sh/@dagger.io/dagger@0.8.7";
+import {
+  Client,
+  Directory,
+  Secret,
+} from "https://esm.sh/@dagger.io/dagger@0.8.7";
 
 type DeployOptions = {
   /**
@@ -9,7 +13,7 @@ type DeployOptions = {
    * The directory to use as the source for the deploy
    * @default .
    */
-  dir?: string;
+  dir?: string | Directory;
   /**
    * Whether or not to deploy to production
    * @default true
@@ -40,9 +44,11 @@ export async function deploy(
     deployToken,
   }: DeployOptions,
 ) {
-  const directory = client.host().directory(dir);
+  const directory = typeof dir === "string"
+    ? client.host().directory(dir)
+    : dir;
 
-  await client
+  const container = await client
     .pipeline("deploy")
     .container()
     .from("denoland/deno")
@@ -63,6 +69,8 @@ export async function deploy(
       entrypoint,
     ], { skipEntrypoint: true })
     .sync();
+
+  return container;
 }
 
 type LintOptions = {
@@ -74,13 +82,15 @@ type LintOptions = {
    * The directory to use as the source for the deploy
    * @default .
    */
-  dir?: string;
+  dir?: string | Directory;
 };
 
 export async function lint({ client, dir = "." }: LintOptions) {
-  const directory = client.host().directory(dir);
+  const directory = typeof dir === "string"
+    ? client.host().directory(dir)
+    : dir;
 
-  await client
+  const container = await client
     .pipeline("lint")
     .container()
     .from("denoland/deno")
@@ -88,6 +98,8 @@ export async function lint({ client, dir = "." }: LintOptions) {
     .withWorkdir("/src")
     .withExec(["deno", "lint"], { skipEntrypoint: true })
     .sync();
+
+  return container;
 }
 
 type FmtOptions = {
@@ -99,13 +111,15 @@ type FmtOptions = {
    * The directory to use as the source for the deploy
    * @default .
    */
-  dir?: string;
+  dir?: string | Directory;
 };
 
 export async function fmt({ client, dir = "." }: FmtOptions) {
-  const directory = client.host().directory(dir);
+  const directory = typeof dir === "string"
+    ? client.host().directory(dir)
+    : dir;
 
-  await client
+  const container = await client
     .pipeline("fmt")
     .container()
     .from("denoland/deno")
@@ -113,4 +127,6 @@ export async function fmt({ client, dir = "." }: FmtOptions) {
     .withWorkdir("/src")
     .withExec(["deno", "fmt", "--check"], { skipEntrypoint: true })
     .sync();
+
+  return container;
 }
