@@ -79,14 +79,37 @@ type LoginOptions = {
 };
 
 export async function login({ username, password }: LoginOptions) {
-  await new Deno.Command("docker", {
-    args: ["login", "-u", await username.plaintext(), "-p", "$DOCKER_PASSWORD"],
-    env: {
-      "DOCKER_PASSWORD": await password.plaintext(),
-    }
-  }).output()
+  const cmd = new Deno.Command("docker", {
+    stderr: "inherit",
+    stdout: "inherit",
+    stdin: "piped",
+    args: ["login", "-u", await username.plaintext(), "--password-stdin"],
+  })
+
+  const p = cmd.spawn();
+  const writer = p.stdin.getWriter();
+
+  await writer.write(new TextEncoder().encode(await password.plaintext()));
+  await writer.close()
+
+  const output = await p.output()
+
+  if (output.code !== 0) {
+    throw new Error("Failed to login into docker");
+  }
 }
 
-export async function logout() {
-  await new Deno.Command("docker", { args: ["logout"] }).output()
+type LogoutOptions = {
+  /**
+   * The registry to logout from
+   */
+  registry?: string;
+};
+
+export async function logout({ }: LogoutOptions = {}) {
+  const output = await new Deno.Command("docker", { args: ["logout"] }).output()
+
+  if (output.code !== 0) {
+    throw new Error("Failed to logout from docker");
+  }
 }
