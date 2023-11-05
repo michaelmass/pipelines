@@ -7,14 +7,6 @@ import {
 
 type DeployOptions = {
   /**
-   * The dagger client to use
-   */
-  client: Client;
-  /**
-   * The deploy token secret to use for dockerhub
-   */
-  token: Secret;
-  /**
    * The container to use for the deploy
    */
   container: Container;
@@ -73,4 +65,28 @@ export async function build(
     .sync();
 
   return container;
+}
+
+type LoginOptions = {
+  /**
+   * The username to login with
+   */
+  username: Secret;
+  /**
+   * The password to login with
+   */
+  password: Secret;
+};
+
+export async function login({ username, password }: LoginOptions) {
+  await new Deno.Command("docker", {
+    args: ["login", "-u", await username.plaintext(), "-p", "$DOCKER_PASSWORD"],
+    env: {
+      "DOCKER_PASSWORD": await password.plaintext(),
+    }
+  }).output()
+}
+
+export async function logout() {
+  await new Deno.Command("docker", { args: ["logout"] }).output()
 }
