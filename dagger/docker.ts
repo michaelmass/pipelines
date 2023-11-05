@@ -99,7 +99,14 @@ export async function login({ username, password }: LoginOptions) {
   }
 }
 
-export async function logout() {
+type LogoutOptions = {
+  /**
+   * The registry to logout from
+   */
+  registry?: string;
+};
+
+export async function logout({ }: LogoutOptions = {}) {
   const output = await new Deno.Command("docker", { args: ["logout"] }).output()
 
   if (output.code !== 0) {
