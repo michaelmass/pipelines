@@ -1,4 +1,4 @@
-import { Client } from "https://esm.sh/@dagger.io/dagger@0.8.7";
+import { Client } from "https://esm.sh/@dagger.io/dagger@0.9.3";
 
 type GetInfinsicalOptions = {
   /**
@@ -72,8 +72,7 @@ const getInfisicalSecret = async (
     GetInfisicalSecretOptions,
 ) => {
   const response = await fetch(
-    `https://app.infisical.com/api/v3/secrets/raw/${name}?environment=${environment}&workspaceId=${workspaceId}&secretPath=${
-      secretPath.startsWith("/") ? secretPath : `/${secretPath}`
+    `https://app.infisical.com/api/v3/secrets/raw/${name}?environment=${environment}&workspaceId=${workspaceId}&secretPath=${secretPath.startsWith("/") ? secretPath : `/${secretPath}`
     }`,
     {
       headers: {
