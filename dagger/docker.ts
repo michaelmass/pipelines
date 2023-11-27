@@ -86,11 +86,16 @@ export async function login({ username, password }: LoginOptions) {
   const cmd = new Deno.Command("docker", {
     stderr: "inherit",
     stdout: "inherit",
-    stdin: "inherit",
-    args: ["login", "-u", await username.plaintext(), "--password", await password.plaintext()],
+    stdin: "piped",
+    args: ["login", "-u", await username.plaintext(), "--password-stdin"],
   })
 
   const p = cmd.spawn();
+  const writer = p.stdin.getWriter();
+
+  await writer.write(new TextEncoder().encode(await password.plaintext()));
+  await writer.close()
+
   const output = await p.output()
 
   if (output.code !== 0) {
