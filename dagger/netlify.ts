@@ -2,7 +2,7 @@ import {
   Client,
   Directory,
   Secret,
-} from "https://esm.sh/@dagger.io/dagger@0.8.7";
+} from "https://esm.sh/@dagger.io/dagger@0.9.3";
 
 type DeployNetlifyOptions = {
   /**
