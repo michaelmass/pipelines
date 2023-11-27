@@ -5,28 +5,32 @@ import {
   Secret,
 } from "https://esm.sh/@dagger.io/dagger@0.8.7";
 
-type DeployOptions = {
+type PublishOptions = {
   /**
-   * The container to use for the deploy
+   * The container to use for the publish
    */
   container: Container;
   /**
-   * The repository to deploy to
+   * The repository to publish to
    */
   repository: string;
   /**
-   * Tags to apply to the deployed image
+   * Tags to apply to the published image
    */
   tags?: string[];
 };
 
-export async function deploy(
+export async function publish(
   {
     container,
     repository,
     tags = ["latest"],
-  }: DeployOptions,
+  }: PublishOptions,
 ) {
+  if (!tags.length) {
+    throw new Error("Failed to publish no tags provided");
+  }
+
   for (const tag of tags) {
     await container.publish(`${repository}:${tag}`);
   }
