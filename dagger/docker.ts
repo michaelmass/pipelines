@@ -15,6 +15,14 @@ type PublishOptions = {
    */
   repository: string;
   /**
+ * The username to login with
+ */
+  username: string;
+  /**
+   * The password to login with
+   */
+  password: Secret;
+  /**
    * Tags to apply to the published image
    */
   tags?: string[];
@@ -23,8 +31,10 @@ type PublishOptions = {
 export async function publish(
   {
     container,
-    repository,
+    repository = "docker.io",
     tags = ["latest"],
+    username,
+    password,
   }: PublishOptions,
 ) {
   if (!tags.length) {
@@ -32,7 +42,9 @@ export async function publish(
   }
 
   for (const tag of tags) {
-    await container.publish(`${repository}:${tag}`);
+    await container
+      .withRegistryAuth(repository, username, password)
+      .publish(`${repository}:${tag}`);
   }
 }
 
@@ -69,51 +81,4 @@ export async function build(
     .sync();
 
   return container;
-}
-
-type LoginOptions = {
-  /**
-   * The username to login with
-   */
-  username: Secret;
-  /**
-   * The password to login with
-   */
-  password: Secret;
-};
-
-export async function login({ username, password }: LoginOptions) {
-  const cmd = new Deno.Command("docker", {
-    stderr: "inherit",
-    stdout: "inherit",
-    stdin: "piped",
-    args: ["login", "-u", await username.plaintext(), "--password-stdin"],
-  })
-
-  const p = cmd.spawn();
-  const writer = p.stdin.getWriter();
-
-  await writer.write(new TextEncoder().encode(await password.plaintext()));
-  await writer.close()
-
-  const output = await p.output()
-
-  if (output.code !== 0) {
-    throw new Error("Failed to login into docker");
-  }
-}
-
-type LogoutOptions = {
-  /**
-   * The registry to logout from
-   */
-  registry?: string;
-};
-
-export async function logout({ }: LogoutOptions = {}) {
-  const output = await new Deno.Command("docker", { args: ["logout"] }).output()
-
-  if (output.code !== 0) {
-    throw new Error("Failed to logout from docker");
-  }
 }
