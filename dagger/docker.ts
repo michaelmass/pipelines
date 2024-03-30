@@ -3,6 +3,7 @@ import {
   Container,
   Directory,
   Secret,
+  Platform,
 } from "https://esm.sh/@dagger.io/dagger@0.9.3";
 
 type PublishOptions = {
@@ -26,6 +27,10 @@ type PublishOptions = {
    * Tags to apply to the published image
    */
   tags?: string[];
+  /**
+   * The platform variants to publish
+   */
+  platformVariants?: Container[];
 };
 
 export async function publish(
@@ -35,6 +40,7 @@ export async function publish(
     tags = ["latest"],
     username,
     password,
+    platformVariants,
   }: PublishOptions,
 ) {
   if (!tags.length) {
@@ -44,7 +50,7 @@ export async function publish(
   for (const tag of tags) {
     await container
       .withRegistryAuth(repository, username, password)
-      .publish(`${repository}:${tag}`);
+      .publish(`${repository}:${tag}`, { platformVariants });
   }
 }
 
@@ -61,6 +67,10 @@ type BuildOptions = {
    * The dockerfile to use for the build
    */
   dockerfile?: string;
+  /**
+   * The platform to build for
+   */
+  platform?: "linux/amd64" | "linux/arm64" | "linux/arm64/v7" | Platform;
 };
 
 export async function build(
@@ -68,6 +78,7 @@ export async function build(
     client,
     dir = ".",
     dockerfile = "Dockerfile",
+    platform = "linux/amd64",
   }: BuildOptions,
 ) {
   const directory = typeof dir === "string"
@@ -76,7 +87,7 @@ export async function build(
 
   const container = await client
     .pipeline("build")
-    .container()
+    .container({ platform: platform as Platform })
     .build(directory, { dockerfile })
     .sync();
 
