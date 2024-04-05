@@ -27,7 +27,7 @@ type GetInfinsicalOptions = {
 
 export function getInfinsical({
   client,
-  environment = "prod",
+  environment = "production",
   token = Deno.env.get("INFISICAL_TOKEN"),
   workspaceId = Deno.env.get("INFISICAL_WORKSPACE_ID"),
   defaultSecretPath = "/",
