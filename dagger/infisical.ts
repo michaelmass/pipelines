@@ -1,4 +1,4 @@
-import { Client } from "https://esm.sh/@dagger.io/dagger@0.9.3";
+import { Client } from "./dagger.ts";
 
 type GetInfinsicalOptions = {
   /**

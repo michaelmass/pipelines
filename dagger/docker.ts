@@ -4,7 +4,7 @@ import {
   Directory,
   Secret,
   Platform,
-} from "https://esm.sh/@dagger.io/dagger@0.9.3";
+} from "./dagger.ts";
 
 type PublishOptions = {
   /**

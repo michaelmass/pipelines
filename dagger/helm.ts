@@ -1,7 +1,7 @@
 import {
   Client,
   File,
-} from "https://esm.sh/@dagger.io/dagger@0.9.3";
+} from "./dagger.ts";
 import { stringify } from "https://deno.land/std@0.221.0/yaml/mod.ts";
 
 type DeployHelmOptions = {
