@@ -1,59 +1,123 @@
 import {
   Client,
-  Directory,
-} from "https://esm.sh/@dagger.io/dagger@0.9.3";
+  File,
+} from "./dagger.ts";
+import { stringify } from "https://deno.land/std@0.221.0/yaml/mod.ts";
 
-type InstallOptions = {
+type DeployHelmOptions = {
   /**
    * The dagger client to use
    */
   client: Client;
   /**
-   * The directory to use as the source for the deploy
-   * @default .
+   * Chart name to use for deployment
    */
-  dir?: string | Directory;
+  chart: string;
   /**
-   * Release name
+   * Release name to use for the deployment
    */
   release: string;
   /**
-   * Namespace
+   * Namespace to deploy the chart to
    */
-  namespace?: string;
+  namespace: string;
   /**
-   * values file
+   * Values file to use for the deployment
    */
-  values?: string;
+  values: string | Record<string, unknown> | File;
+  /**
+   * Repository to use for the deployment
+   */
+  repository: string;
+  /**
+   * Version of the chart to deploy
+   */
+  version: string;
+  /**
+   * Atomic flag for the deployment
+   */
+  atomic?: boolean;
+  /**
+   * Create namespace flag for the deployment
+   */
+  createNamespace?: boolean;
+  /**
+   * Cleanup on fail flag for the deployment
+   */
+  cleanupOnFail?: boolean;
+  /**
+   * Max history for the deployment
+   */
+  maxHistory?: number;
+  /**
+   * Timeout for the deployment in seconds
+   */
+  timeout?: number;
+  /**
+   * Kubeconfig file to use for the deployment or the content of the kubeconfig file
+   */
+  kubeconfig: string | File;
 };
 
-export async function install({
-  client,
-  dir = ".",
-  release,
-  namespace = "default",
-  values = "./values.yaml",
-}: InstallOptions) {
-  const directory = typeof dir === "string"
-    ? client.host().directory(dir)
-    : dir;
+export async function deploy(
+  {
+    client,
+    maxHistory = 10,
+    kubeconfig,
+    namespace,
+    chart,
+    release,
+    values,
+    repository,
+    version,
+    atomic = true,
+    cleanupOnFail = true,
+    createNamespace = false,
+    timeout = 300,
+  }: DeployHelmOptions,
+) {
+  const kubeconfigPath = "/deploy/kubeconfig";
+  const valuesPath = "/deploy/values.yaml";
 
-  return await client
-    .pipeline("install")
+  const kubeconfigFile = typeof kubeconfig === "string" ?
+    client.directory().withNewFile(kubeconfigPath, kubeconfig).file(kubeconfigPath) :
+    kubeconfig
+
+  const valuesFile = values instanceof File ?
+    values :
+    client.directory().withNewFile(valuesPath, values === "string" ? values : stringify(values)).file(valuesPath)
+
+  const exec = [
+    "helm",
+    "upgrade",
+    release,
+    chart,
+    "--install",
+    "--timeout",
+    timeout.toString(),
+    "--version",
+    version,
+    "--repo",
+    repository,
+    "--namespace",
+    namespace,
+    "--kubeconfig",
+    kubeconfigPath,
+    "--history-max",
+    maxHistory.toString(),
+    "--values",
+    valuesPath,
+    atomic ? "--atomic" : undefined,
+    cleanupOnFail ? "--cleanup-on-fail" : undefined,
+    createNamespace ? "--create-namespace" : undefined,
+  ].filter((v) => v !== undefined) as string[]
+
+  await client
+    .pipeline("deploy")
     .container()
-    .from("michaelmass/helmify")
-    .withDirectory("/src", directory)
-    .withWorkdir("/src")
-    .withExec([
-      "helm",
-      "upgrade",
-      release,
-      ".",
-      "--install",
-      "--wait",
-      "--atomic",
-      `--namespace=${namespace}`,
-      `--values=${values}`,
-    ], { skipEntrypoint: true })
-    .sync()
+    .from("helm:3.14.3")
+    .withFile(kubeconfigPath, kubeconfigFile)
+    .withFile(valuesPath, valuesFile)
+    .withExec(exec, { skipEntrypoint: true })
+    .sync();
 }
