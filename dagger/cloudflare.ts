@@ -62,7 +62,7 @@ export async function upload({
   const exec = [
     "wrangler",
     "pages",
-    "publish",
+    "deploy",
     ".",
     "--project-name",
     project,
