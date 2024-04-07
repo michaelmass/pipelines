@@ -4,6 +4,8 @@ import {
   Secret,
 } from "./dagger.ts";
 
+const wranglerImage = "michaelmass/wrangler:0.0.1";
+
 type UploadOptions = {
   /**
    * The dagger client to use
@@ -78,11 +80,41 @@ export async function upload({
   await client
     .pipeline("upload")
     .container()
-    .from("michaelmass/wrangler:0.0.1")
+    .from(wranglerImage)
     .withSecretVariable("CLOUDFLARE_ACCOUNT_ID", cloudflareToken)
     .withSecretVariable("CLOUDFLARE_API_TOKEN", accountId)
     .withDirectory("/src", directory)
     .withWorkdir("/src")
     .withExec(exec, { skipEntrypoint: true })
+    .sync();
+}
+
+type WhoAmIOptions = {
+  /**
+   * The dagger client to use
+   */
+  client: Client;
+  /**
+   * Cloudflare API token
+   */
+  cloudflareToken: Secret;
+  /**
+   * Cloudflare account ID
+   */
+  accountId: Secret;
+};
+
+export async function whoami({
+  client,
+  cloudflareToken,
+  accountId,
+}: WhoAmIOptions) {
+  await client
+    .pipeline("whoami")
+    .container()
+    .from(wranglerImage)
+    .withSecretVariable("CLOUDFLARE_ACCOUNT_ID", cloudflareToken)
+    .withSecretVariable("CLOUDFLARE_API_TOKEN", accountId)
+    .withExec(["wrangler", "whoami"], { skipEntrypoint: true })
     .sync();
 }
