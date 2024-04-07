@@ -81,8 +81,8 @@ export async function upload({
     .pipeline("upload")
     .container()
     .from(wranglerImage)
-    .withSecretVariable("CLOUDFLARE_ACCOUNT_ID", cloudflareToken)
-    .withSecretVariable("CLOUDFLARE_API_TOKEN", accountId)
+    .withSecretVariable("CLOUDFLARE_ACCOUNT_ID", accountId)
+    .withSecretVariable("CLOUDFLARE_API_TOKEN", cloudflareToken)
     .withDirectory("/src", directory)
     .withWorkdir("/src")
     .withExec(exec, { skipEntrypoint: true })
@@ -113,8 +113,8 @@ export async function whoami({
     .pipeline("whoami")
     .container()
     .from(wranglerImage)
-    .withSecretVariable("CLOUDFLARE_ACCOUNT_ID", cloudflareToken)
-    .withSecretVariable("CLOUDFLARE_API_TOKEN", accountId)
+    .withSecretVariable("CLOUDFLARE_ACCOUNT_ID", accountId)
+    .withSecretVariable("CLOUDFLARE_API_TOKEN", cloudflareToken)
     .withExec(["wrangler", "whoami"], { skipEntrypoint: true })
     .sync();
 }
