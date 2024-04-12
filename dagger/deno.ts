@@ -133,9 +133,13 @@ type CheckOptions = {
 	 * @default .
 	 */
 	dir?: string | Directory;
+	/**
+	 * The deno entrypoint to use for the type check
+	 */
+	entrypoint: string;
 };
 
-export async function check({ client, dir = "." }: CheckOptions) {
+export async function check({ client, dir = ".", entrypoint }: CheckOptions) {
 	const directory =
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
@@ -145,7 +149,7 @@ export async function check({ client, dir = "." }: CheckOptions) {
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["deno", "check"], { skipEntrypoint: true })
+		.withExec(["deno", "check", entrypoint], { skipEntrypoint: true })
 		.sync();
 
 	return container;

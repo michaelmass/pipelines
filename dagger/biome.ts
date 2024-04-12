@@ -1,6 +1,6 @@
 import type { Client, Directory } from "./dagger.ts";
 
-const biomeImage = "michaelmass/biome:0.0.1";
+const biomeImage = "michaelmass/biome:0.0.2";
 
 type LintOptions = {
 	/**
