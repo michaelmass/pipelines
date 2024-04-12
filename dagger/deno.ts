@@ -136,10 +136,14 @@ type CheckOptions = {
 	/**
 	 * The deno entrypoint to use for the type check
 	 */
-	entrypoint: string;
+	entrypoints: string[];
 };
 
-export async function check({ client, dir = ".", entrypoint }: CheckOptions) {
+export async function check({
+	client,
+	dir = ".",
+	entrypoints = ["src/mod.ts"],
+}: CheckOptions) {
 	const directory =
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
@@ -149,7 +153,41 @@ export async function check({ client, dir = ".", entrypoint }: CheckOptions) {
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["deno", "check", entrypoint], { skipEntrypoint: true })
+		.withExec(["deno", "check", ...entrypoints], { skipEntrypoint: true })
+		.sync();
+
+	return container;
+}
+
+type PublishOptions = {
+	/**
+	 * The dagger client to use
+	 */
+	client: Client;
+	/**
+	 * The directory to use as the source for the type check
+	 * @default .
+	 */
+	dir?: string | Directory;
+	/**
+	 * The id token to use for the publish
+	 */
+	token: Secret;
+};
+
+export async function publish({ client, dir = ".", token }: PublishOptions) {
+	const directory =
+		typeof dir === "string" ? client.host().directory(dir) : dir;
+
+	const container = await client
+		.pipeline("check")
+		.container()
+		.from("denoland/deno")
+		.withDirectory("/src", directory)
+		.withWorkdir("/src")
+		.withExec(["deno", "publish", "--token", await token.plaintext()], {
+			skipEntrypoint: true,
+		})
 		.sync();
 
 	return container;
