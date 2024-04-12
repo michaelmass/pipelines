@@ -154,3 +154,31 @@ export async function check({ client, dir = ".", entrypoint }: CheckOptions) {
 
 	return container;
 }
+
+type PublishOptions = {
+	/**
+	 * The dagger client to use
+	 */
+	client: Client;
+	/**
+	 * The directory to use as the source for the type check
+	 * @default .
+	 */
+	dir?: string | Directory;
+};
+
+export async function publish({ client, dir = "." }: PublishOptions) {
+	const directory =
+		typeof dir === "string" ? client.host().directory(dir) : dir;
+
+	const container = await client
+		.pipeline("check")
+		.container()
+		.from("denoland/deno")
+		.withDirectory("/src", directory)
+		.withWorkdir("/src")
+		.withExec(["deno", "publish"], { skipEntrypoint: true }) // TODO! finish publish by adding a secret for the token
+		.sync();
+
+	return container;
+}
