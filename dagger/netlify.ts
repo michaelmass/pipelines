@@ -1,4 +1,4 @@
-import { Client, Directory, Secret } from "./dagger.ts";
+import type { Client, Directory, Secret } from "./dagger.ts";
 
 // TODO! test the implementation of deploy function
 

@@ -1,4 +1,4 @@
-import { Client, Directory } from "./dagger.ts";
+import type { Client, Directory } from "./dagger.ts";
 
 // TODO! test the implementation of upload function
 
