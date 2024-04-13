@@ -172,23 +172,55 @@ type PublishOptions = {
 	/**
 	 * The id token to use for the publish
 	 */
-	token: Secret;
+	token?: Secret;
 };
 
 export async function publish({ client, dir = ".", token }: PublishOptions) {
 	const directory =
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
-	const container = await client
-		.pipeline("check")
+	const command = ["deno", "publish"];
+
+	if (token) {
+		command.push("--token", await token.plaintext());
+	}
+
+	let container = client
+		.pipeline("publish")
 		.container()
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
-		.withWorkdir("/src")
-		.withExec(["deno", "publish", "--token", await token.plaintext()], {
+		.withWorkdir("/src");
+
+	if (!token) {
+		const githubActions = Deno.env.get("GITHUB_ACTIONS") ?? "";
+		const actionsIdTokenRequestUrl =
+			Deno.env.get("ACTIONS_ID_TOKEN_REQUEST_URL") ?? "";
+		const actionsIdTokenRequestToken =
+			Deno.env.get("ACTIONS_ID_TOKEN_REQUEST_TOKEN") ?? "";
+
+		if (
+			!githubActions ||
+			!actionsIdTokenRequestUrl ||
+			!actionsIdTokenRequestToken
+		) {
+			throw new Error(
+				"Missing GITHUB_ACTIONS, ACTIONS_ID_TOKEN_REQUEST_URL, or ACTIONS_ID_TOKEN_REQUEST_TOKEN environment variables",
+			);
+		}
+
+		container = container
+			.withEnvVariable("GITHUB_ACTIONS", githubActions)
+			.withEnvVariable("ACTIONS_ID_TOKEN_REQUEST_URL", actionsIdTokenRequestUrl)
+			.withEnvVariable(
+				"ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+				actionsIdTokenRequestToken,
+			);
+	}
+
+	return container
+		.withExec(command, {
 			skipEntrypoint: true,
 		})
 		.sync();
-
-	return container;
 }
