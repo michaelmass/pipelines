@@ -193,32 +193,32 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 		.withWorkdir("/src");
 
 	if (!token) {
-		const githubActions = Deno.env.get("GITHUB_ACTIONS") ?? "";
-		const githubRepository = Deno.env.get("GITHUB_REPOSITORY") ?? "";
-		const actionsIdTokenRequestUrl =
-			Deno.env.get("ACTIONS_ID_TOKEN_REQUEST_URL") ?? "";
-		const actionsIdTokenRequestToken =
-			Deno.env.get("ACTIONS_ID_TOKEN_REQUEST_TOKEN") ?? "";
+		const environmentVariables = [
+			"ACTIONS_ID_TOKEN_REQUEST",
+			"ACTIONS_ID_TOKEN_REQUEST_URL",
+			"GITHUB_ACTIONS",
+			"GITHUB_EVENT_NAME",
+			"GITHUB_REF",
+			"GITHUB_REPOSITORY",
+			"GITHUB_REPOSITORY_ID",
+			"GITHUB_REPOSITORY_OWNER_ID",
+			"GITHUB_RUN_ATTEMPT",
+			"GITHUB_RUN_ID",
+			"GITHUB_SERVER_URL",
+			"GITHUB_SHA",
+			"GITHUB_WORKFLOW_REF",
+			"RUNNER_ENVIRONMENT",
+		];
 
-		if (
-			!githubActions ||
-			!actionsIdTokenRequestUrl ||
-			!actionsIdTokenRequestToken ||
-			!githubRepository
-		) {
-			throw new Error(
-				"Missing GITHUB_ACTIONS, ACTIONS_ID_TOKEN_REQUEST_URL, or ACTIONS_ID_TOKEN_REQUEST_TOKEN environment variables",
-			);
+		for (const environmentVariable of environmentVariables) {
+			const variable = Deno.env.get(environmentVariable);
+
+			if (!variable) {
+				throw new Error(`Missing ${environmentVariable} environment variable`);
+			}
+
+			container = container.withEnvVariable(environmentVariable, variable);
 		}
-
-		container = container
-			.withEnvVariable("GITHUB_REPOSITORY", githubRepository)
-			.withEnvVariable("GITHUB_ACTIONS", githubActions)
-			.withEnvVariable("ACTIONS_ID_TOKEN_REQUEST_URL", actionsIdTokenRequestUrl)
-			.withEnvVariable(
-				"ACTIONS_ID_TOKEN_REQUEST_TOKEN",
-				actionsIdTokenRequestToken,
-			);
 	}
 
 	return container
