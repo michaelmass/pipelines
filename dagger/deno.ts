@@ -194,7 +194,7 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 
 	if (!token) {
 		const environmentVariables = [
-			"ACTIONS_ID_TOKEN_REQUEST",
+			"ACTIONS_ID_TOKEN_REQUEST_TOKEN",
 			"ACTIONS_ID_TOKEN_REQUEST_URL",
 			"GITHUB_ACTIONS",
 			"GITHUB_EVENT_NAME",
@@ -213,11 +213,9 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 		for (const environmentVariable of environmentVariables) {
 			const variable = Deno.env.get(environmentVariable);
 
-			if (!variable) {
-				throw new Error(`Missing ${environmentVariable} environment variable`);
+			if (variable) {
+				container = container.withEnvVariable(environmentVariable, variable);
 			}
-
-			container = container.withEnvVariable(environmentVariable, variable);
 		}
 	}
 
