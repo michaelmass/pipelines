@@ -194,6 +194,7 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 
 	if (!token) {
 		const githubActions = Deno.env.get("GITHUB_ACTIONS") ?? "";
+		const githubRepository = Deno.env.get("GITHUB_REPOSITORY") ?? "";
 		const actionsIdTokenRequestUrl =
 			Deno.env.get("ACTIONS_ID_TOKEN_REQUEST_URL") ?? "";
 		const actionsIdTokenRequestToken =
@@ -202,7 +203,8 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 		if (
 			!githubActions ||
 			!actionsIdTokenRequestUrl ||
-			!actionsIdTokenRequestToken
+			!actionsIdTokenRequestToken ||
+			!githubRepository
 		) {
 			throw new Error(
 				"Missing GITHUB_ACTIONS, ACTIONS_ID_TOKEN_REQUEST_URL, or ACTIONS_ID_TOKEN_REQUEST_TOKEN environment variables",
@@ -210,6 +212,7 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 		}
 
 		container = container
+			.withEnvVariable("GITHUB_REPOSITORY", githubRepository)
 			.withEnvVariable("GITHUB_ACTIONS", githubActions)
 			.withEnvVariable("ACTIONS_ID_TOKEN_REQUEST_URL", actionsIdTokenRequestUrl)
 			.withEnvVariable(
