@@ -49,7 +49,7 @@ export async function deploy({
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
 		.withExec(
-			["deno", "install", "-Arf", "https://deno.land/x/deploy/deployctl.ts"],
+			["deno", "install", "-Arfg", "https://deno.land/x/deploy/deployctl.ts"],
 			{ skipEntrypoint: true },
 		)
 		.withExec(
