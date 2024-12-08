@@ -48,10 +48,9 @@ export async function deploy({
 		.withSecretVariable("DENO_DEPLOY_TOKEN", deployToken)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(
-			["deno", "install", "-Arfg", "https://deno.land/x/deploy/deployctl.ts"],
-			{ skipEntrypoint: true },
-		)
+		.withExec(["deno", "install", "-Arfg", "jsr:@deno/deployctl"], {
+			skipEntrypoint: true,
+		})
 		.withExec(
 			[
 				"deployctl",
