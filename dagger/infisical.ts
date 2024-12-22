@@ -44,7 +44,7 @@ export function getInfinsical({
 		list: async ({
 			secretPath,
 			prefix = "",
-		}: { secretPath?: string; prefix?: string }) => {
+		}: { secretPath?: string; prefix?: string } = {}) => {
 			const secrets = await getInfisicalSecrets({
 				environment,
 				workspaceId,
