@@ -41,6 +41,24 @@ export function getInfinsical({
 	}
 
 	return {
+		list: async ({
+			secretPath,
+			prefix = "",
+		}: { secretPath?: string; prefix?: string }) => {
+			const secrets = await getInfisicalSecrets({
+				environment,
+				workspaceId,
+				token,
+				secretPath: secretPath ?? defaultSecretPath,
+			});
+
+			return Object.fromEntries(
+				Object.entries(secrets).map(([key, value]) => [
+					key,
+					client.setSecret(`${prefix}${key}`, value),
+				]),
+			);
+		},
 		get: async ({
 			name,
 			secretName,
@@ -98,3 +116,42 @@ const getInfisicalSecret = async ({
 
 	return value;
 };
+
+type GetInfisicalSecretsOptions = {
+	environment: string;
+	workspaceId: string;
+	token: string;
+	secretPath: string;
+	prefix?: string;
+};
+
+export async function getInfisicalSecrets({
+	environment,
+	workspaceId,
+	token,
+	secretPath,
+}: GetInfisicalSecretsOptions) {
+	const response = await fetch(
+		`https://app.infisical.com/api/v3/secrets/raw?environment=${environment}&workspaceId=${workspaceId}&secretPath=${
+			secretPath.startsWith("/") ? secretPath : `/${secretPath}`
+		}`,
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		},
+	);
+
+	const data = await response.json();
+
+	return data.secrets.reduce(
+		(
+			acc: Record<string, string>,
+			secret: { secretKey: string; secretValue: string },
+		) => {
+			acc[secret.secretKey] = secret.secretValue;
+			return acc;
+		},
+		{} as Record<string, string>,
+	) as Record<string, string>;
+}
