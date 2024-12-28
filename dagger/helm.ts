@@ -100,7 +100,7 @@ export async function deploy({
 		chart,
 		"--install",
 		"--timeout",
-		timeout.toString(),
+		`${timeout.toString()}s`,
 		"--version",
 		version,
 		"--repo",
