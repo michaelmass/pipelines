@@ -54,6 +54,10 @@ type DeployHelmOptions = {
 	 * Kubeconfig file to use for the deployment or the content of the kubeconfig file
 	 */
 	kubeconfig: string | File;
+	/*
+	 * Dry run the deployment
+	 */
+	dryRun?: boolean;
 };
 
 export async function deploy({
@@ -69,6 +73,7 @@ export async function deploy({
 	atomic = true,
 	cleanupOnFail = true,
 	createNamespace = false,
+	dryRun = false,
 	timeout = 300,
 }: DeployHelmOptions) {
 	const kubeconfigPath = "/deploy/kubeconfig";
@@ -99,6 +104,7 @@ export async function deploy({
 		release,
 		chart,
 		"--install",
+		dryRun ? "--dry-run" : undefined,
 		"--timeout",
 		`${timeout.toString()}s`,
 		"--version",
