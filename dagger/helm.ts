@@ -1,5 +1,5 @@
-import { type Client, File } from "./dagger.ts";
 import { stringify } from "https://deno.land/std@0.221.0/yaml/mod.ts";
+import { type Client, File } from "./dagger.ts";
 
 type DeployHelmOptions = {
 	/**
@@ -121,7 +121,7 @@ export async function deploy({
 	await client
 		.pipeline("deploy")
 		.container()
-		.from("helm:3.14.3")
+		.from("alpine/helm:3.16.4")
 		.withFile(kubeconfigPath, kubeconfigFile)
 		.withFile(valuesPath, valuesFile)
 		.withExec(exec, { skipEntrypoint: true })
