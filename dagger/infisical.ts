@@ -144,7 +144,7 @@ export async function getInfisicalSecrets({
 
 	const data = await response.json();
 
-	return data.secrets.reduce(
+	return (data.secrets?.reduce(
 		(
 			acc: Record<string, string>,
 			secret: { secretKey: string; secretValue: string },
@@ -153,5 +153,5 @@ export async function getInfisicalSecrets({
 			return acc;
 		},
 		{} as Record<string, string>,
-	) as Record<string, string>;
+	) ?? {}) as Record<string, string>;
 }
