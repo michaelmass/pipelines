@@ -97,9 +97,9 @@ const getInfisicalSecret = async ({
 	secretPath,
 }: GetInfisicalSecretOptions) => {
 	const response = await fetch(
-		`https://app.infisical.com/api/v3/secrets/raw/${name}?environment=${environment}&workspaceId=${workspaceId}&secretPath=${
-			secretPath.startsWith("/") ? secretPath : `/${secretPath}`
-		}`,
+		`https://app.infisical.com/api/v3/secrets/raw/${name}?environment=${environment}&workspaceId=${workspaceId}&secretPath=${encodeURIComponent(
+			secretPath.startsWith("/") ? secretPath : `/${secretPath}`,
+		)}`,
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -132,9 +132,9 @@ export async function getInfisicalSecrets({
 	secretPath,
 }: GetInfisicalSecretsOptions) {
 	const response = await fetch(
-		`https://app.infisical.com/api/v3/secrets/raw?environment=${environment}&workspaceId=${workspaceId}&secretPath=${
-			secretPath.startsWith("/") ? secretPath : `/${secretPath}`
-		}`,
+		`https://app.infisical.com/api/v3/secrets/raw?environment=${environment}&workspaceId=${workspaceId}&secretPath=${encodeURIComponent(
+			secretPath.startsWith("/") ? secretPath : `/${secretPath}`,
+		)}`,
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,
