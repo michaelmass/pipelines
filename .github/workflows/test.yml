@@ -16,3 +16,4 @@ jobs:
           source: dagger/test/index.ts
           infisical-token: ${{ secrets.INFISICAL_TOKEN }}
           infisical-workspace-id: ${{ secrets.INFISICAL_WORKSPACE_ID }}
+          infisical-environment: production

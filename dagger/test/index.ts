@@ -4,6 +4,6 @@ await connect(async (client) => {
   await client
     .container()
     .from("alpine:latest")
-    .withExec(["echo", "Hello, World!"], { skipEntrypoint: true })
+    .withExec(["echo", "Hello, World!"])
     .sync();
 });

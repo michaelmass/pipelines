@@ -31,15 +31,12 @@ export async function deploy({
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	await client
-		.pipeline("deploy")
 		.container()
 		.from("node:20-slim")
-		.withExec(["npm", "install", "-g", "netlify-cli"], { skipEntrypoint: true })
+		.withExec(["npm", "install", "-g", "netlify-cli"])
 		.withDirectory("/app", directory)
 		.withEnvVariable("NETLIFY_SITE_ID", site)
 		.withSecretVariable("NETLIFY_AUTH_TOKEN", token)
-		.withExec(["netlify", "deploy", "--prod", "--dir", "/app"], {
-			skipEntrypoint: true,
-		})
+		.withExec(["netlify", "deploy", "--prod", "--dir", "/app"])
 		.sync();
 }
