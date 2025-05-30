@@ -125,11 +125,10 @@ export async function deploy({
 	].filter((v) => v !== undefined) as string[];
 
 	await client
-		.pipeline("deploy")
 		.container()
 		.from("alpine/helm:3.16.4")
 		.withFile(kubeconfigPath, kubeconfigFile)
 		.withFile(valuesPath, valuesFile)
-		.withExec(exec, { skipEntrypoint: true })
+		.withExec(exec)
 		.sync();
 }

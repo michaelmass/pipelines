@@ -81,7 +81,6 @@ export async function build({
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("build")
 		.container({ platform: platform as Platform })
 		.build(directory, { dockerfile })
 		.sync();

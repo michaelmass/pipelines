@@ -1,1 +1,1 @@
-export * from "https://esm.sh/@dagger.io/dagger@0.9.6";
+export * from "npm:@dagger.io/dagger@0.18.9";

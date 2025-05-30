@@ -73,14 +73,13 @@ export async function upload({
 	].filter((v) => v !== undefined) as string[];
 
 	await client
-		.pipeline("upload")
 		.container()
 		.from(wranglerImage)
 		.withSecretVariable("CLOUDFLARE_ACCOUNT_ID", accountId)
 		.withSecretVariable("CLOUDFLARE_API_TOKEN", cloudflareToken)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(exec, { skipEntrypoint: true })
+		.withExec(exec)
 		.sync();
 }
 
@@ -105,11 +104,10 @@ export async function whoami({
 	accountId,
 }: WhoAmIOptions) {
 	await client
-		.pipeline("whoami")
 		.container()
 		.from(wranglerImage)
 		.withSecretVariable("CLOUDFLARE_ACCOUNT_ID", accountId)
 		.withSecretVariable("CLOUDFLARE_API_TOKEN", cloudflareToken)
-		.withExec(["wrangler", "whoami"], { skipEntrypoint: true })
+		.withExec(["wrangler", "whoami"])
 		.sync();
 }

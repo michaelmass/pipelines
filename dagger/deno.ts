@@ -42,15 +42,12 @@ export async function deploy({
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("deploy")
 		.container()
 		.from("denoland/deno")
 		.withSecretVariable("DENO_DEPLOY_TOKEN", deployToken)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["deno", "install", "-Arfg", "jsr:@deno/deployctl"], {
-			skipEntrypoint: true,
-		})
+		.withExec(["deno", "install", "-Arfg", "jsr:@deno/deployctl"])
 		.withExec(
 			[
 				"deployctl",
@@ -58,8 +55,7 @@ export async function deploy({
 				`--project=${project}`,
 				prod ? "--prod" : "",
 				entrypoint,
-			],
-			{ skipEntrypoint: true },
+			]
 		)
 		.sync();
 
@@ -83,12 +79,11 @@ export async function lint({ client, dir = "." }: LintOptions) {
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("lint")
 		.container()
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["deno", "lint"], { skipEntrypoint: true })
+		.withExec(["deno", "lint"])
 		.sync();
 
 	return container;
@@ -111,12 +106,11 @@ export async function fmt({ client, dir = "." }: FmtOptions) {
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("fmt")
 		.container()
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["deno", "fmt", "--check"], { skipEntrypoint: true })
+		.withExec(["deno", "fmt", "--check"])
 		.sync();
 
 	return container;
@@ -147,12 +141,11 @@ export async function check({
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("check")
 		.container()
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["deno", "check", ...entrypoints], { skipEntrypoint: true })
+		.withExec(["deno", "check", ...entrypoints])
 		.sync();
 
 	return container;
@@ -185,7 +178,6 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 	}
 
 	let container = client
-		.pipeline("publish")
 		.container()
 		.from("denoland/deno")
 		.withDirectory("/src", directory)
@@ -219,8 +211,6 @@ export async function publish({ client, dir = ".", token }: PublishOptions) {
 	}
 
 	return container
-		.withExec(command, {
-			skipEntrypoint: true,
-		})
+		.withExec(command)
 		.sync();
 }

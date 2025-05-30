@@ -19,12 +19,11 @@ export async function lint({ client, dir = "." }: LintOptions) {
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("lint")
 		.container()
 		.from(biomeImage)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["biome", "lint", "./"], { skipEntrypoint: true })
+		.withExec(["biome", "lint", "./"])
 		.sync();
 
 	return container;
@@ -47,12 +46,11 @@ export async function fmt({ client, dir = "." }: FmtOptions) {
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("fmt")
 		.container()
 		.from(biomeImage)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["biome", "format", "./"], { skipEntrypoint: true })
+		.withExec(["biome", "format", "./"])
 		.sync();
 
 	return container;
@@ -75,12 +73,11 @@ export async function check({ client, dir = "." }: CheckOptions) {
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	const container = await client
-		.pipeline("fmt")
 		.container()
 		.from(biomeImage)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(["biome", "check", "./"], { skipEntrypoint: true })
+		.withExec(["biome", "check", "./"])
 		.sync();
 
 	return container;
