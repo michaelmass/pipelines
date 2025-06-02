@@ -1,6 +1,6 @@
 import type { Client, Directory, Secret } from "./dagger.ts";
 
-const wranglerImage = "michaelmass/wrangler:0.0.3";
+const wranglerImage = "michaelmass/wrangler:0.0.4";
 
 type UploadOptions = {
 	/**

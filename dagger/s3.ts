@@ -53,7 +53,6 @@ export async function upload({
 		typeof dir === "string" ? client.host().directory(dir) : dir;
 
 	let container = client
-		.pipeline("upload")
 		.container()
 		.from("amazon/aws-cli")
 		.withEnvVariable("AWS_ACCESS_KEY_ID", awsAccessKeyId)
@@ -61,24 +60,25 @@ export async function upload({
 		.withEnvVariable("AWS_REGION", awsRegion)
 		.withDirectory("/src", directory)
 		.withWorkdir("/src")
-		.withExec(
-			["aws", "s3", "sync", ".", `s3://${bucket}/${prefix}`, "--delete"],
-			{ skipEntrypoint: true },
-		);
+		.withExec([
+			"aws",
+			"s3",
+			"sync",
+			".",
+			`s3://${bucket}/${prefix}`,
+			"--delete",
+		]);
 
 	if (cloudfrontDistribution) {
-		container = container.withExec(
-			[
-				"aws",
-				"cloudfront",
-				"create-invalidation",
-				"--distribution-id",
-				cloudfrontDistribution,
-				"--paths",
-				prefix ? `/${prefix}/*` : "/*",
-			],
-			{ skipEntrypoint: true },
-		);
+		container = container.withExec([
+			"aws",
+			"cloudfront",
+			"create-invalidation",
+			"--distribution-id",
+			cloudfrontDistribution,
+			"--paths",
+			prefix ? `/${prefix}/*` : "/*",
+		]);
 	}
 
 	await container.sync();
