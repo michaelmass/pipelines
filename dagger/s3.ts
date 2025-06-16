@@ -1,7 +1,5 @@
 import type { Client, Directory } from "./dagger.ts";
 
-// TODO! test the implementation of upload function
-
 type UploadOptions = {
 	/**
 	 * The dagger client to use
