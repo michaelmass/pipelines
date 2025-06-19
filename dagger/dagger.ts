@@ -1,1 +1,1 @@
-export * from "npm:@dagger.io/dagger@0.18.10";
+export * from 'npm:@dagger.io/dagger@0.18.10'
