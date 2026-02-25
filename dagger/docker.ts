@@ -59,9 +59,8 @@ type BuildOptions = {
 export async function build({ client, dir = '.', dockerfile = 'Dockerfile', platform = 'linux/amd64' }: BuildOptions) {
   const directory = typeof dir === 'string' ? client.host().directory(dir) : dir
 
-  const container = await client
-    .container({ platform: platform as Platform })
-    .build(directory, { dockerfile })
+  const container = await directory
+    .dockerBuild({ dockerfile, platform: platform as Platform })
     .sync()
 
   return container
