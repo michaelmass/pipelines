@@ -96,6 +96,11 @@ type FormatUploadCommadOptions = {
    */
   project: string
   /**
+   * The directory to use as the source for the deploy
+   * @default .
+   */
+  dir?: string
+  /**
    * The name of the branch you want to deploy to
    */
   branch?: string
@@ -113,12 +118,12 @@ type FormatUploadCommadOptions = {
   commitDirty?: boolean
 }
 
-export function formatUploadCommad({ project, branch, commitHash, commitMessage, commitDirty }: FormatUploadCommadOptions) {
+export function formatUploadCommad({ project, dir = '.', branch, commitHash, commitMessage, commitDirty }: FormatUploadCommadOptions) {
   return [
     'wrangler',
     'pages',
     'deploy',
-    '.',
+    dir,
     '--project-name',
     project,
     branch ? '--branch' : undefined,
