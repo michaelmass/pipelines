@@ -1,0 +1,15 @@
+{
+  "mcp": {
+    "memelord": {
+      "type": "local",
+      "command": [
+        "memelord",
+        "serve"
+      ],
+      "environment": {
+        "MEMELORD_DIR": "/Users/mike/Documents/dev/michaelmass/pipelines/.memelord"
+      },
+      "enabled": true
+    }
+  }
+}
